@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <ctime>
+#include <iomanip>
 using namespace std;
 
 void bubbleSort(vector<int>& container){
@@ -69,8 +71,43 @@ void mergeSort(vector<int>& container, vector<int>& helper, int left, int right)
 	}	
 }
 
-void quickSort(vector<int>& container){
-	
+int partition(vector<int>& container, int left, int right){
+	int pivot = container[(left + right)/2];
+	while(left <= right){
+		//  Move left pointer forwards as long as less than pivot
+		while(container[left] < pivot){
+			left++;
+		}
+		// Move right pointer backwards as long as more than pivot
+		while(container[right] > pivot){
+			right++;
+		}
+		// If left and right pointers have not crossed then swap and
+		// move pointers
+		if(left <= right){
+			swap(container[left], container[right]);
+			left++;
+			right--;
+		}
+	}
+	return left;
+}
+
+void quickSort(vector<int>& container, int left, int right){
+	int index = partition(container, left, right);
+	if(left < index - 1){
+		quickSort(container, left, index - 1);
+	}
+	else{
+		quickSort(container, index, right);
+	}
+}
+
+void printContainer(vector<int>& container){
+	for(auto& c : container){
+		cout << c << ' ';
+	}
+	cout << endl << endl;
 }
 
 void selectSort(vector<int>& container){
@@ -81,34 +118,49 @@ void selectSort(vector<int>& container){
 	"4. Quick Sort\n"
 	"5. Exit\n\n";
 
+	clock_t start, end;
+	
 	int option;
 	cin >> option;
 
 	switch(option){
-		case 1 :	bubbleSort(container);
-					break;
-		case 2:		insertSort(container);
-					break;
-		case 3:		{
-					vector<int> helper(container.size());
-					mergeSort(container, helper, 0, container.size()-1);
-					break;
-					}
-		case 4: 	quickSort(container);
-					break;
+		case 1 :{
+			start = clock();
+			bubbleSort(container);
+			end = clock();
+			break;
+		}	
+		case 2:{
+			start = clock();
+			insertSort(container);
+			end = clock();
+			break;
+		}		
+		case 3:{
+			vector<int> helper(container.size());
+			start = clock();
+			mergeSort(container, helper, 0, container.size()-1);
+			end = clock();
+			break;
+		}
+		case 4:{
+			start = clock();
+			quickSort(container, 0, container.size()-1);
+			end = clock();
+			break;
+		}
 		case 5:		exit(0);
 		default:	cout << "Invalid choice\n Try Again\n" << endl;
 					selectSort(container);
 					break;	
-		};
+	};
+	printContainer(container);
+
+	cout << fixed << setprecision(4) << "Time taken using option "  << option << ": " 
+		<< 1000.0*(end-start) / CLOCKS_PER_SEC << " ms\n" << endl;
 }
 
-void printContainer(vector<int>& container){
-	for(auto& c : container){
-		cout << c << ' ';
-	}
-	cout << endl << endl;
-}
+
 
 void generateContainer(vector<int>& container, int size){
 	for(auto& n : container){
@@ -142,8 +194,6 @@ int main(int argc, char* argv[]){
 	printContainer(container);
 
 	selectSort(container);
-
-	printContainer(container);
 
 	
 	return 0;
