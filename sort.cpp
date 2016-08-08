@@ -165,11 +165,8 @@ void countSort(vector<int> container, int length, int currDigit){
 	vector<int> count(10, 0);
 	// count number of instances that this digit occurs at this space
 	// curr digit starts at 1 so it is n/1
-	// for(auto& n : container){
-	// 	count[(n/currDigit)%10]++;
-	// }
-
 	for(int i = 0; i < length; ++i){
+		cout << "------at index " << i << " result of count loop digit = " << (container[i]/currDigit)%10 << endl;
 		count[(container[i]/currDigit)%10]++;
 	}
 
@@ -178,7 +175,7 @@ void countSort(vector<int> container, int length, int currDigit){
 	}
 	cout << endl;
 
-	// Note where actual position of the digis is in output[0]
+	// Note where actual position of the digits is in output[0]
 	for(int i = 1; i < 10; ++i){
 		count[i] += count[i-1];
 	}
@@ -187,7 +184,7 @@ void countSort(vector<int> container, int length, int currDigit){
 	// Build result
 	for(int i = length - 1; i >= 0; --i){
 		result[count[(container[i] / currDigit) % 10] -1] = container[i];
-		count[(container[i] /currDigit) %10] --;
+		count[(container[i] /currDigit) %10]--;
 	}
 
 	for(int i = 0; i < length; ++i){
@@ -197,12 +194,22 @@ void countSort(vector<int> container, int length, int currDigit){
 
 void radixSort(vector<int>& container){
 	// Find max element in container, as will have most digits
+	int minElement = abs(*min_element(container.begin(), container.end()));
+	for(auto& n : container){
+		n += minElement;
+	}
+
+
 	int maxElement = *max_element(container.begin(), container.end());
 
 	int length = container.size();
 
 	for(int currDigit = 1; maxElement/currDigit > 0; currDigit *= 10){
 		countSort(container, length, currDigit);
+	}
+
+	for(auto& n : container){
+		n -= minElement;
 	}
 }
 //	Testing --------------------------------------------------------------------
