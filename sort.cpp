@@ -157,6 +157,54 @@ void heapSort(vector<int>& container){
 	}
 }
 
+//  Radix Sort -----------------------------------------------------------------
+
+void countSort(vector<int> container, int length, int currDigit){
+	// Output container
+	vector<int> result(length);
+	vector<int> count(10, 0);
+	// count number of instances that this digit occurs at this space
+	// curr digit starts at 1 so it is n/1
+	// for(auto& n : container){
+	// 	count[(n/currDigit)%10]++;
+	// }
+
+	for(int i = 0; i < length; ++i){
+		count[(container[i]/currDigit)%10]++;
+	}
+
+	for(auto& c : count){
+		cout << "count is " << c << endl;
+	}
+	cout << endl;
+
+	// Note where actual position of the digis is in output[0]
+	for(int i = 1; i < 10; ++i){
+		count[i] += count[i-1];
+	}
+
+
+	// Build result
+	for(int i = length - 1; i >= 0; --i){
+		result[count[(container[i] / currDigit) % 10] -1] = container[i];
+		count[(container[i] /currDigit) %10] --;
+	}
+
+	for(int i = 0; i < length; ++i){
+		container[i] = result[i];
+	}
+}
+
+void radixSort(vector<int>& container){
+	// Find max element in container, as will have most digits
+	int maxElement = *max_element(container.begin(), container.end());
+
+	int length = container.size();
+
+	for(int currDigit = 1; maxElement/currDigit > 0; currDigit *= 10){
+		countSort(container, length, currDigit);
+	}
+}
 //	Testing --------------------------------------------------------------------
 
 void printContainer(vector<int>& container){
@@ -173,7 +221,8 @@ void selectSort(vector<int>& container){
 	"3. Merge Sort \n"
 	"4. Quick Sort\n"
 	"5. Heap Sort\n"
-	"6. Exit\n\n";
+	"6. Radix Sort\n"
+	"7. Exit\n\n";
 
 	clock_t start, end;
 	
@@ -212,7 +261,13 @@ void selectSort(vector<int>& container){
 			end = clock();
 			break;
 		}
-		case 6:		exit(0);
+		case 6:{
+			start = clock();
+			radixSort(container);
+			end = clock();
+			break;
+		}
+		case 7:		exit(0);
 		default:	cout << "Invalid choice\n Try Again\n" << endl;
 					selectSort(container);
 					break;	
