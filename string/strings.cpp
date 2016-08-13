@@ -28,12 +28,14 @@ void naive(string& pattern, string& text, vector<int>& matches){
 //  assumes pattern is a word that can be compared in constant time
 void rabinKarp(string& pattern, string& text, vector<int>& matches){
 	int num = 0;
+	// big prime
+	int q = 105943;
 	int pLen = pattern.length();
 	for(int i = 0; i < pLen; ++i){
 		num = num * 10 + (pattern[i] - '0');
 		//cout << "num is " << num << endl;
 	}
-	num = stoi(pattern);
+	num = num % q;
 	//cout << "num is " << num << endl;
 	// alternate is num = stoi(pattern);
 	int part = 0;
@@ -45,9 +47,8 @@ void rabinKarp(string& pattern, string& text, vector<int>& matches){
 
 	for(int s = 0; s < shifts; ++s){
 		// Up date the word interpeted as a number
-		//cout << "update is " << (part % int(pow(10, pLen-1))) * 10 + (text[s+pLen-1] - '0') << endl;
 		part = (part % int(pow(10, pLen -1))) * 10 + (text[s + pLen - 1] - '0');
-		if(part == num){
+		if(part%q == num){
 			matches.push_back(s);
 		}
 	}
