@@ -54,9 +54,40 @@ void rabinKarp(string& pattern, string& text, vector<int>& matches){
 	}
 }
 
+// Knuth-Morris-Pratt-----------------------------------------------------------
 void kmp(string& pattern, string& text, vector<int>& matches){
+	int pLen = pattern.length();
+	vector<int> prefix(pLen + 1, 0);
+	prefix[0] = -1;
+	for(int i = 0; i < pLen; ++i){
+		int index = prefix[i];
+		cout << "index is " << prefix[i] << endl;
+		while(index > -1 && pattern[index] != pattern[i]){
+			index = prefix[index];
+			cout << "in while loop index is " << index << " and pattern[index] is "<< pattern[index] << " while pattern[i] is " << pattern[i] << endl; 
+		}
+		prefix[i+1] = ++index;
+		cout << "prefix[i+1] is " << index << endl;
+	}
+	for(auto& a : prefix){
+		cout << a << ' ';
+	}
+	cout << endl;
 
+	int tLen = text.length();
+	int seen = 0;
+	for(int i = 0; i < tLen; ++i){
+		while(seen > -1 && pattern[seen] != text[i]){
+			seen = prefix[seen];
+		}
+		if(++seen == pLen){
+			matches.push_back(i - pLen + 1);
+			seen = prefix[pLen];
+		}
+	}
 }
+
+
 
 void bm(string& pattern, string& text, vector<int>& matches){
 
