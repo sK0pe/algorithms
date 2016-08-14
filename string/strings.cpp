@@ -200,9 +200,51 @@ void kmp(string& pattern, string& text, vector<int>& matches){
 }
 
 
-
 void bm(string& pattern, string& text, vector<int>& matches){
+	int dictionarySize = 256;
+	vector<int> badCharacter(dictionarySize, -1);
 
+	int pLen = pattern.length();
+	int tLen = text.length();
+
+	// dictionary is indexed
+	// important to give characters not in the pattern a value of -1 as required
+	// when doing table lookup, alternatively could use an unordered_set
+	for(int i = 0; i < pLen; ++i){
+		badCharacter[(int) pattern[i]] = i;
+	}
+	int shifts = tLen - pLen;
+	int s = 0; 
+	while(s <= shifts){
+		int j = pLen -1;
+		// Check from right to left if window == pattern
+		cout << "checking text = " << text[s+j] << " with pattern = " << 
+			pattern[j] << endl;
+		while(j >= 0 && pattern[j] == text[s+j]){
+			cout << "checking from right to left does " << text[s+j] << " == " 
+			<< pattern[j] << endl;
+			--j;
+		}
+		// If window == pattern then j should be -1
+		if(j < 0){
+			cout << "pattern matched" << endl;
+			matches.push_back(s);
+			// Move s forward so that the next occurrence in the text of the
+			// character in the pattern is the next one
+			// As long as s + pLen would be less than the length of the text, 
+			// otherwise just move forward 1.
+			cout << "move forward by " << pLen - badCharacter[text[s+pLen]] << endl;
+			s += (s + pLen < tLen) ? pLen - badCharacter[text[s + pLen]] : 1;
+		}
+		else{
+			// Shift the pattern so that bad character in text aligns with the 
+			// last occurrence of it in pattern, use max to get a positive shift
+			// badcharacter gives j + 1, where j was the erroneous character
+			cout << "s = " << s << " and j = " << j << endl;
+			cout << "pattern not matched, move forward by " << max(1, j - badCharacter[text[s + j]]) << endl;
+			s += max(1, j - badCharacter[text[s + j]]);
+		}
+	}
 }
 
 void selectPatternMatch(string& pattern, string& text, vector<int>& matches){
