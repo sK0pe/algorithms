@@ -199,7 +199,7 @@ void kmp(string& pattern, string& text, vector<int>& matches){
 	}*/
 }
 
-
+// Boyer Moore------------------------------------------------------------------
 void bm(string& pattern, string& text, vector<int>& matches){
 	int dictionarySize = 256;
 	vector<int> badCharacter(dictionarySize, -1);
@@ -233,7 +233,8 @@ void bm(string& pattern, string& text, vector<int>& matches){
 			// character in the pattern is the next one
 			// As long as s + pLen would be less than the length of the text, 
 			// otherwise just move forward 1.
-			cout << "move forward by " << pLen - badCharacter[text[s+pLen]] << endl;
+			cout << "move forward by " << pLen - badCharacter[text[s+pLen]] << 
+				endl;
 			s += (s + pLen < tLen) ? pLen - badCharacter[text[s + pLen]] : 1;
 		}
 		else{
@@ -241,10 +242,31 @@ void bm(string& pattern, string& text, vector<int>& matches){
 			// last occurrence of it in pattern, use max to get a positive shift
 			// badcharacter gives j + 1, where j was the erroneous character
 			cout << "s = " << s << " and j = " << j << endl;
-			cout << "pattern not matched, move forward by " << max(1, j - badCharacter[text[s + j]]) << endl;
+			cout << "pattern not matched, move forward by " << max(1, j - 
+				badCharacter[text[s + j]]) << endl;
 			s += max(1, j - badCharacter[text[s + j]]);
 		}
 	}
+}
+
+// LCS--------------------------------------------------------------------------
+int lcsRec(string& s1, int x, string& s2, int y, string& sub, string& longest){
+	if(x == 0 || y == 0){
+		longest = (longest.length() > sub.length())? longest : sub;
+		sub = "";
+		return 0;
+	}
+	if(s1[x -1] == s2[y - 1]){
+		sub += s1[x-1];
+		return s1[x-1] + lcsRec(s1, x-1, s2, y-1, sub, longest);
+	}
+	else{
+		return max(lcsRec(s1, x-1, s2, y, sub, longest), lcsRec(s1, x, s2, y-1, sub, longest));
+	}
+}
+
+void lcsDP(string& s1, string &s2){
+
 }
 
 void selectPatternMatch(string& pattern, string& text, vector<int>& matches){
@@ -253,7 +275,9 @@ void selectPatternMatch(string& pattern, string& text, vector<int>& matches){
 	"2. Rabin-Karp (general)\n"
 	"3. Knuth-Morris-Pratt\n"
 	"4. Boyer-Moore\n"
-	"5. Exit\n\n";
+	"5. LCS (recursive)\n"
+	"6. LCS (DP)\n"
+	"7. Exit\n\n";
 
 	clock_t start, end;
 	
@@ -285,7 +309,23 @@ void selectPatternMatch(string& pattern, string& text, vector<int>& matches){
 			end = clock();
 			break;
 		}
-		case 5:		exit(0);
+		case 5:{
+			start = clock();
+			string sub = "";
+			string longest = "";
+			lcsRec(pattern, pattern.length(), text, text.length(), sub, longest);
+			end = clock();
+			cout << "lcs is " << longest << " from " << pattern << " and " << text 
+				<< endl;
+			break;
+		}
+		case 6:{
+			start = clock();
+			lcsDP(pattern, text);
+			end = clock();
+			break;
+		}
+		case 7:		exit(0);
 		default:	cout << "Invalid choice\n Try Again\n" << endl;
 					selectPatternMatch(pattern, text, matches);
 					break;	
