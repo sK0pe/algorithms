@@ -113,37 +113,47 @@ void rabinKarp(string& pattern, string& text, vector<int>& matches){
 }
 
 // Knuth-Morris-Pratt-----------------------------------------------------------
-void getProperSuffixes(string& pattern, vector<int>& suffixes){
+// Preprocessing takes O(pattern.length * alphabet) complexity
+void makeFSM(string& pattern, vector<int>& states){
 	int len = 0;
-	suffixes[0] = 0;
+	states[0] = 0;
 	int pLen = pattern.length();
 
 	int i = 1;
 	while(i < pLen){
 		if(pattern[i] == pattern[len]){
-			suffixes[i] = ++len;
+			// fsm should point to next position to compare on next iteration
+			states[i] = ++len;
+			// move along string when pattern found correctly to next 
+			// string / state
 			++i;
 		}
-		// else pattern[i] != pattern[len]
+		// if the string state doesn't match the character at len
 		else{
 			if(len != 0){
-				len = suffixes[len-1];
-				// don't increment i
+				// len becomes the state prior to len (as pattern has stopped 
+				// matching)
+				len = states[len-1];
+				// don't move along string as need to check same state agains
+				// previous character
 			}
-			else{	// if len == 0
-				suffixes[i] = 0;
+			else{	// if back to len == 0
+				// this state should point to 0 in the fsm
+				states[i] = 0;
+				// go to next state / chracter
 				++i;
 			}
 		}
 	}
 }
 
+
 void kmp(string& pattern, string& text, vector<int>& matches){
 	int pLen = pattern.length();
 	int tLen = text.length();
 
-	vector<int> properSuffixes(pLen);
-	getProperSuffixes(pattern, properSuffixes);
+	vector<int> fsm(pLen);
+	makeFSM(pattern, fsm);
 
 	int i = 0;
 	int j = 0;
@@ -156,58 +166,22 @@ void kmp(string& pattern, string& text, vector<int>& matches){
 		// If at the end of pattern length, have found the index at i -j
 		if(j == pLen){
 			matches.push_back(i - j);
-			// Move j back to properSuffixes -1 to check if next character also
+			// Move j back to fsm -1 to check if next character also
 			// matches word
-			j = properSuffixes[j-1];
+			j = fsm[j-1];
 		}
 		// mismatch after j matches
 		else if(i < tLen && pattern[j] != text[i]){
-			// skip matching properSuffixes 0 .. propersuffixes[j-1]
+			// skip matching fsm 0 .. fsm[j-1]
 			if(j != 0){
-				// go back to previous position in array
-				j = properSuffixes[j-1];
+				// go back to previous state in fsm
+				j = fsm[j-1];
 			}
 			else{
 				++i;
 			}
 		}
 	}
-
-
-	/*int pLen = pattern.length();
-	vector<int> prefix(pLen + 1, 0);
-	prefix[0] = -1;
-	for(int i = 0; i < pLen; ++i){
-		int index = prefix[i];
-		cout << "i is " << i <<  " and index is " << index << endl;
-		cout << "pattern[index] = " << pattern[index] << " and pattern[i] =  " << pattern[i] << endl;
-		while(index > -1 && pattern[index] != pattern[i]){
-			index = prefix[index];
-			cout << "pattern[index] = " << pattern[index] << " and pattern[i] =  " << pattern[i] << endl;
-			cout << "index is now prefix[index] = " << index << endl;
-			//cout << "in while loop index is " << index << " and pattern[index] is "<< pattern[index] << " while pattern[i] is " << pattern[i] << endl;
-		}
-		prefix[i+1] = ++index;
-		//cout << "prefix[i+1] is " << index << endl;
-		cout << "i = " << i << " index = " << index << endl;
-		cout << "prefix[i] = " << prefix[i] << " prefix[i + 1] = " << prefix[i+1] << endl << endl;
-	}
-	for(auto& a : prefix){
-		cout << a << ' ';
-	}
-	cout << endl;
-
-	int tLen = text.length();
-	int seen = 0;
-	for(int i = 0; i < tLen; ++i){
-		while(seen > -1 && pattern[seen] != text[i]){
-			seen = prefix[seen];
-		}
-		if(++seen == pLen){
-			matches.push_back(i - pLen + 1);
-			seen = prefix[pLen];
-		}
-	}*/
 }
 
 // Boyer Moore------------------------------------------------------------------
@@ -276,39 +250,30 @@ int lcsRec(string& s1, int x, string& s2, int y, string& sub, string& longest){
 	}
 }
 
-string readMem(vector<vector<int>>& memTable, string& s1, string& s2, int i, int j){
-	if(i == 0 || j == 0){
-		return "";
-	}
-	else if(s1[i] == s2[j]){
-		return readMem(memTable, s1, s2, i, j) + s1[i];
-	}
-	else{
-		if(memTable[i][j-1] > memTable[i-1][j]){
-			return readMem(memTable, s1, s2, i, j-1);
-		}
-		else{
-			return readMem(memTable, s1, s2, i-1, j);
-		}
-	}
-}
-
 void lcsDP(string& s1, string &s2){
 	// Make memoization table +1 for each string length
 	int length1 = s1.length();
 	int length2 = s2.length();
-	vector<vector<int>> memTable(length1 + 1, vector<int>(length2 + 1));
+	//vector<vector<int>> memTable(length1 + 1, vector<int>(length2 + 1));
+	vector<vector<string>> memTable(length1 + 1, vector<string>(length2 + 1));
 	for(int row = 0; row <= length1; ++row){
 		for(int col = 0; col <= length2; ++col){
 			// Fill zeroes if encountered
 			if(row == 0 || col == 0){
-				memTable[row][col] = 0;
+				memTable[row][col] = "";
 			}
 			else if(s1[row - 1] == s2[col - 1]){
-				memTable[row][col] = memTable[row-1][col-1] + 1;
+				//memTable[row][col] = memTable[row-1][col-1] + 1;
+				memTable[row][col] += (memTable[row-1][col-1] += s1[row-1]);
 			}
 			else{
-				memTable[row][col] = max(memTable[row-1][col], memTable[row][col-1]);
+				if(memTable[row-1][col].length() > memTable[row][col-1].length()){
+					memTable[row][col] += memTable[row-1][col];
+				}
+				else{
+					memTable[row][col] += memTable[row][col-1];
+				}
+				//memTable[row][col] = max(memTable[row-1][col], memTable[row][col-1]);
 			}
 		}
 	}
