@@ -33,7 +33,7 @@ void naive(string& pattern, string& text, vector<int>& matches){
 //	rabinKarp-------------------------------------------------------------------
 //  assumes pattern is a word that can be compared in constant time
 void rabinKarp(string& pattern, string& text, vector<int>& matches){
-	/*int bigPrime = 101;
+	int bigPrime = 101;
 	int pLen = pattern.length();
 	int shifts = text.length() - pLen;
 
@@ -46,6 +46,9 @@ void rabinKarp(string& pattern, string& text, vector<int>& matches){
 		digit = (digit * dictionarySize) % bigPrime;
 		cout << "digit in loop " << digit << endl;
 	}
+	//digit = (int)pow(dictionarySize, pLen - 1);
+	cout << "digit is = " << digit << endl;
+
 
 	// Find hashed values of pattern and first window in text
 	for(int i = 0; i < pLen; ++i){
@@ -72,14 +75,15 @@ void rabinKarp(string& pattern, string& text, vector<int>& matches){
 		}
 	// Calculate next hashed window, may be negative so get abs
 		if(s < shifts){
-			hashText = abs((dictionarySize * (hashText - text[s]*digit) +
-				text[s + pLen]) % bigPrime);
+			cout << "hashText = " << hashText << "\n text[s] = " << (int)text[s] << "\n text[s + pLen]" << (int)text[s + pLen] << endl;
+			hashText = (hashText + bigPrime - digit*text[s]%bigPrime)%bigPrime;
+			hashText = (hashText*dictionarySize + text[s + pLen])%bigPrime;
 		}
-		cout << "hashText refresh is = " << hashText << endl;
-	}*/
+		cout << "hashText refresh is = " << hashText << " at index " << s << endl;
+	}
 
 
-	int pLen = pattern.length();
+	/*int pLen = pattern.length();
 	int num = 0;
 	int bigPrime = 101;
 	int tLen = text.length();
@@ -105,7 +109,7 @@ void rabinKarp(string& pattern, string& text, vector<int>& matches){
 		if(window%bigPrime == num){
 			matches.push_back(s);
 		}
-	}
+	}*/
 }
 
 // Knuth-Morris-Pratt-----------------------------------------------------------
@@ -269,6 +273,23 @@ int lcsRec(string& s1, int x, string& s2, int y, string& sub, string& longest){
 	}
 	else{
 		return max(lcsRec(s1, x-1, s2, y, sub, longest), lcsRec(s1, x, s2, y-1, sub, longest));
+	}
+}
+
+string readMem(vector<vector<int>>& memTable, string& s1, string& s2, int i, int j){
+	if(i == 0 || j == 0){
+		return "";
+	}
+	else if(s1[i] == s2[j]){
+		return readMem(memTable, s1, s2, i, j) + s1[i];
+	}
+	else{
+		if(memTable[i][j-1] > memTable[i-1][j]){
+			return readMem(memTable, s1, s2, i, j-1);
+		}
+		else{
+			return readMem(memTable, s1, s2, i-1, j);
+		}
 	}
 }
 
