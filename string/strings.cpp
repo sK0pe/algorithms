@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <ctime>
 #include <iomanip>
+#include <math.h>
 using namespace std;
 
 //	Naive-----------------------------------------------------------------------
@@ -31,20 +32,21 @@ void naive(string& pattern, string& text, vector<int>& matches){
 //	rabinKarp-------------------------------------------------------------------
 //  assumes pattern is a word that can be compared in constant time
 void rabinKarp(string& pattern, string& text, vector<int>& matches){
-	int bigPrime = 105943;
+	int bigPrime = 101;
 	int pLen = pattern.length();
 	int shifts = text.length() - pLen;
 
 	int hashPattern = 0;
 	int hashText = 0;
 	int digit = 1;
-	int dictionarySize = 256;	// ascii characters
+	int dictionarySize = 10;	// ascii characters
 
-	// pow(digit, pLen - 1) % bigPrime
-	for(int i = 0; i < pLen-1; ++i){
+	digit = (int)pow(dictionarySize, pLen-1) % bigPrime;
+
+	/*for(int i = 0; i < pLen-1; ++i){
 		digit = (digit * dictionarySize) % bigPrime;
-	}
-	cout << "digit = " << digit << endl;
+		cout << "digit in loop " << digit << endl;
+	}*/
 
 	// Find hashed values of pattern and first window in text
 	for(int i = 0; i < pLen; ++i){
@@ -71,12 +73,12 @@ void rabinKarp(string& pattern, string& text, vector<int>& matches){
 		}
 	// Calculate next hashed window, may be negative so get abs
 		if(s < shifts){
-			hashText = abs((dictionarySize * (hashText - text[s]*digit) + 
+			hashText = abs((dictionarySize * (hashText - text[s]*digit) +
 				text[s + pLen]) % bigPrime);
 		}
 		cout << "hashText refresh is = " << hashText << endl;
 	}
-	
+
 
 	/*for(int i = 0; i < pLen; ++i){
 		num = num * 10 + (pattern[i] - '0');
@@ -106,14 +108,14 @@ void getProperSuffixes(string& pattern, vector<int>& suffixes){
 	int len = 0;
 	suffixes[0] = 0;
 	int pLen = pattern.length();
-	
+
 	int i = 1;
 	while(i < pLen){
 		if(pattern[i] == pattern[len]){
 			suffixes[i] = ++len;
 			++i;
 		}
-		// pattern[i] != pattern[len]
+		// else pattern[i] != pattern[len]
 		else{
 			if(len != 0){
 				len = suffixes[len-1];
@@ -174,7 +176,7 @@ void kmp(string& pattern, string& text, vector<int>& matches){
 			index = prefix[index];
 			cout << "pattern[index] = " << pattern[index] << " and pattern[i] =  " << pattern[i] << endl;
 			cout << "index is now prefix[index] = " << index << endl;
-			//cout << "in while loop index is " << index << " and pattern[index] is "<< pattern[index] << " while pattern[i] is " << pattern[i] << endl; 
+			//cout << "in while loop index is " << index << " and pattern[index] is "<< pattern[index] << " while pattern[i] is " << pattern[i] << endl;
 		}
 		prefix[i+1] = ++index;
 		//cout << "prefix[i+1] is " << index << endl;
@@ -214,14 +216,14 @@ void bm(string& pattern, string& text, vector<int>& matches){
 		badCharacter[(int) pattern[i]] = i;
 	}
 	int shifts = tLen - pLen;
-	int s = 0; 
+	int s = 0;
 	while(s <= shifts){
 		int j = pLen -1;
 		// Check from right to left if window == pattern
-		cout << "checking text = " << text[s+j] << " with pattern = " << 
+		cout << "checking text = " << text[s+j] << " with pattern = " <<
 			pattern[j] << endl;
 		while(j >= 0 && pattern[j] == text[s+j]){
-			cout << "checking from right to left does " << text[s+j] << " == " 
+			cout << "checking from right to left does " << text[s+j] << " == "
 			<< pattern[j] << endl;
 			--j;
 		}
@@ -231,18 +233,18 @@ void bm(string& pattern, string& text, vector<int>& matches){
 			matches.push_back(s);
 			// Move s forward so that the next occurrence in the text of the
 			// character in the pattern is the next one
-			// As long as s + pLen would be less than the length of the text, 
+			// As long as s + pLen would be less than the length of the text,
 			// otherwise just move forward 1.
-			cout << "move forward by " << pLen - badCharacter[text[s+pLen]] << 
+			cout << "move forward by " << pLen - badCharacter[text[s+pLen]] <<
 				endl;
 			s += (s + pLen < tLen) ? pLen - badCharacter[text[s + pLen]] : 1;
 		}
 		else{
-			// Shift the pattern so that bad character in text aligns with the 
+			// Shift the pattern so that bad character in text aligns with the
 			// last occurrence of it in pattern, use max to get a positive shift
 			// badcharacter gives j + 1, where j was the erroneous character
 			cout << "s = " << s << " and j = " << j << endl;
-			cout << "pattern not matched, move forward by " << max(1, j - 
+			cout << "pattern not matched, move forward by " << max(1, j -
 				badCharacter[text[s + j]]) << endl;
 			s += max(1, j - badCharacter[text[s + j]]);
 		}
@@ -258,7 +260,7 @@ int lcsRec(string& s1, int x, string& s2, int y, string& sub, string& longest){
 	}
 	if(s1[x -1] == s2[y - 1]){
 		sub += s1[x-1];
-		return s1[x-1] + lcsRec(s1, x-1, s2, y-1, sub, longest);
+		return 1 + lcsRec(s1, x-1, s2, y-1, sub, longest);
 	}
 	else{
 		return max(lcsRec(s1, x-1, s2, y, sub, longest), lcsRec(s1, x, s2, y-1, sub, longest));
@@ -280,7 +282,7 @@ void selectPatternMatch(string& pattern, string& text, vector<int>& matches){
 	"7. Exit\n\n";
 
 	clock_t start, end;
-	
+
 	int option;
 	cin >> option;
 
@@ -290,13 +292,13 @@ void selectPatternMatch(string& pattern, string& text, vector<int>& matches){
 			naive(pattern, text, matches);
 			end = clock();
 			break;
-		}	
+		}
 		case 2:{
 			start = clock();
 			rabinKarp(pattern, text, matches);
 			end = clock();
 			break;
-		}		
+		}
 		case 3:{
 			start = clock();
 			kmp(pattern, text, matches);
@@ -315,7 +317,7 @@ void selectPatternMatch(string& pattern, string& text, vector<int>& matches){
 			string longest = "";
 			lcsRec(pattern, pattern.length(), text, text.length(), sub, longest);
 			end = clock();
-			cout << "lcs is " << longest << " from " << pattern << " and " << text 
+			cout << "lcs is " << longest << " from " << pattern << " and " << text
 				<< endl;
 			break;
 		}
@@ -328,10 +330,10 @@ void selectPatternMatch(string& pattern, string& text, vector<int>& matches){
 		case 7:		exit(0);
 		default:	cout << "Invalid choice\n Try Again\n" << endl;
 					selectPatternMatch(pattern, text, matches);
-					break;	
+					break;
 	};
 
-	cout << fixed << setprecision(4) << "Time taken using option "  << option << 
+	cout << fixed << setprecision(4) << "Time taken using option "  << option <<
 		": \n" << 1000.0*(end-start) / CLOCKS_PER_SEC << " ms\n" << endl;
 }
 
@@ -344,7 +346,7 @@ int main(int argc, char* argv[]){
 	cin >> text >> pattern;
 	vector<int> matches;
 	selectPatternMatch(pattern, text, matches);
-	cout << "Text to search: " << text << '\n' << "Pattern to find: " << pattern 
+	cout << "Text to search: " << text << '\n' << "Pattern to find: " << pattern
 	<< "\n\n" << "Indices where match occurred: \n";
 	if(matches.empty()){
 		cout << "no matches found.";
@@ -352,10 +354,10 @@ int main(int argc, char* argv[]){
 	else{
 		for(auto &match : matches){
 			cout << match << ' ';
-		}	
+		}
 	}
 	cout << endl << endl;;
 
-	
+
 	return 0;
 }
