@@ -5,6 +5,7 @@
 #include <ctime>
 #include <iomanip>
 #include <math.h>
+#include <sstream>
 using namespace std;
 
 //	Naive-----------------------------------------------------------------------
@@ -32,7 +33,7 @@ void naive(string& pattern, string& text, vector<int>& matches){
 //	rabinKarp-------------------------------------------------------------------
 //  assumes pattern is a word that can be compared in constant time
 void rabinKarp(string& pattern, string& text, vector<int>& matches){
-	int bigPrime = 101;
+	/*int bigPrime = 101;
 	int pLen = pattern.length();
 	int shifts = text.length() - pLen;
 
@@ -41,12 +42,10 @@ void rabinKarp(string& pattern, string& text, vector<int>& matches){
 	int digit = 1;
 	int dictionarySize = 10;	// ascii characters
 
-	digit = (int)pow(dictionarySize, pLen-1) % bigPrime;
-
-	/*for(int i = 0; i < pLen-1; ++i){
+	for(int i = 0; i < pLen-1; ++i){
 		digit = (digit * dictionarySize) % bigPrime;
 		cout << "digit in loop " << digit << endl;
-	}*/
+	}
 
 	// Find hashed values of pattern and first window in text
 	for(int i = 0; i < pLen; ++i){
@@ -77,30 +76,36 @@ void rabinKarp(string& pattern, string& text, vector<int>& matches){
 				text[s + pLen]) % bigPrime);
 		}
 		cout << "hashText refresh is = " << hashText << endl;
-	}
+	}*/
 
 
-	/*for(int i = 0; i < pLen; ++i){
+	int pLen = pattern.length();
+	int num = 0;
+	int bigPrime = 101;
+	int tLen = text.length();
+
+
+	for(int i = 0; i < pLen; ++i){
 		num = num * 10 + (pattern[i] - '0');
 		//cout << "num is " << num << endl;
 	}
 	num = num % bigPrime;
 	//cout << "num is " << num << endl;
 	// alternate is num = stoi(pattern);
-	int part = 0;
+	int window = 0;
 	for(int i = 0; i < pLen-1; ++i){
-		part = part * 10 + (text[i] - '0');
+		window = window * 10 + (text[i] - '0');
 	}
 
 	int shifts = tLen - pLen + 1;
 
 	for(int s = 0; s < shifts; ++s){
 		// Up date the word interpeted as a number
-		part = (part % int(pow(10, pLen -1))) * 10 + (text[s + pLen - 1] - '0');
-		if(part%bigPrime == num){
+		window = (window % int(pow(10, pLen -1))) * 10 + (text[s + pLen - 1] - '0');
+		if(window%bigPrime == num){
 			matches.push_back(s);
 		}
-	}*/
+	}
 }
 
 // Knuth-Morris-Pratt-----------------------------------------------------------
@@ -268,7 +273,25 @@ int lcsRec(string& s1, int x, string& s2, int y, string& sub, string& longest){
 }
 
 void lcsDP(string& s1, string &s2){
-
+	// Make memoization table +1 for each string length
+	int length1 = s1.length();
+	int length2 = s2.length();
+	vector<vector<int>> memTable(length1 + 1, vector<int>(length2 + 1));
+	for(int row = 0; row <= length1; ++row){
+		for(int col = 0; col <= length2; ++col){
+			// Fill zeroes if encountered
+			if(row == 0 || col == 0){
+				memTable[row][col] = 0;
+			}
+			else if(s1[row - 1] == s2[col - 1]){
+				memTable[row][col] = memTable[row-1][col-1] + 1;
+			}
+			else{
+				memTable[row][col] = max(memTable[row-1][col], memTable[row][col-1]);
+			}
+		}
+	}
+	cout << "result is " << memTable[length1][length2] << endl;
 }
 
 void selectPatternMatch(string& pattern, string& text, vector<int>& matches){
