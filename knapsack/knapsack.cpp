@@ -4,7 +4,7 @@
 using namespace std;
 
 
-int knapSackFraction(vector<int>& weights, vector<int>& values,
+int knapSackMulti(vector<int>& weights, vector<int>& values,
         vector<int>& counts, int capacity){
 
     int items = weights.size();
@@ -35,6 +35,35 @@ int knapSackFraction(vector<int>& weights, vector<int>& values,
         }
         else{
             ++item;
+        }
+    }
+    return totalValue;
+}
+
+int knapSackFraction(vector<int>& weights, vector<int>& values, int capacity){
+    int items = weights.size();
+    vector<int> indicies(items);
+    for(int i = 0; i < items; ++i){
+        indicies[i] = i;
+    }
+
+    sort(indicies.begin(), indicies.end(), [&weights, &values](int lhs, int rhs){
+        return ((double)values[lhs]/(double)weights[lhs]) >
+            ((double)values[rhs]/(double)weights[rhs]);
+    });
+
+    int totalValue = 0;
+    int currWeight = 0;
+    int currItem = 0;
+    for(int i = 0; i < items; ++i){
+        currItem = indicies[i];
+        if(currWeight + weights[currItem] <= capacity){
+            currWeight += weights[currItem];
+            totalValue += values[currItem];
+        }
+        else{
+            totalValue += values[currItem] * ((double)(capacity - currWeight)/weights[currItem]);
+            break;
         }
     }
     return totalValue;
@@ -129,7 +158,7 @@ int main(){
         knapSack01(weights, values, sackCapacity) << endl << endl;
 
     cout << "Using Knapsack fraction, most value attained is: " <<
-        knapSackFraction(weights, values, counts, sackCapacity) << endl;
+        knapSackFraction(weights, values, sackCapacity) << endl;
 
     return 0;
 }
