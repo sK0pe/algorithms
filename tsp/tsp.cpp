@@ -5,7 +5,7 @@
 #include <stack>
 using namespace std;
 
-
+// This method takes at the most 2* the length of the MST to visit all the cities
 void dfs(vector<map<int, int>>& mst, int numNodes){
     vector<bool> visited(numNodes, false);
     // arbitrary start node
@@ -13,18 +13,23 @@ void dfs(vector<map<int, int>>& mst, int numNodes){
     visited[0] = true;
     cityStack.push(0);
     int currNode;
+    int totalDistance = 0;
     while(!cityStack.empty()){
         currNode = cityStack.top();
         cityStack.pop();
+        cout << currNode << " is moved to " << endl;
         // Iterate over each node in the current map
         for(auto& m : mst[currNode]){
             if(!visited[m.first]){
                 visited[m.first] = true;
-                cout << m.first << " is the node being visited " << endl;
+                cout << m.first << " is a city to visit later " << endl;
+                totalDistance += m.second;
+                //cout << "total distance travelled = " << totalDistance << endl;
                 cityStack.push(m.first);
             }
         }
     }
+    cout << "Travel a total of " << totalDistance*2 << " to get back to the starting city." << endl;
 }
 
 void prims(int numNodes, vector<map<int, int>>& grid, vector<map<int, int>>& minPath){
@@ -57,7 +62,7 @@ void prims(int numNodes, vector<map<int, int>>& grid, vector<map<int, int>>& min
             }
         }
     }
-    // Populate graph
+    // Populate graph O(N)
     for(int i = 0; i < numNodes; ++i){
         if(parent[i] > -1){
             minPath[parent[i]][i] = cost[i];
@@ -77,6 +82,7 @@ void tsp(int numNodes, vector<map<int, int>>& grid){
     // }
     cout << endl;
     prims(numNodes, grid, minPath);
+    cout << "MST found" << endl;
     for(int i = 0; i < numNodes; ++i){
         for(auto& s : minPath[i]){
             cout << "Node u = " << i << " Node v = " << s.first << " edge weight = " << s.second << endl;
