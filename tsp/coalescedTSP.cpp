@@ -96,9 +96,9 @@ void kruskals(int numNodes, vector<edge>& grid, vector<edge>& minPath){
 
 		// Checking degrees for coalesced simple paths
 		// On top of kruskals checking if 2 points are in the same set by checking roots
-		if(!inSameSet(currCheapest.source, currCheapest.destination, parent) 
+		if(!inSameSet(currCheapest.source, currCheapest.destination, parent)
 			&& degree[currCheapest.source] != 2 && degree[currCheapest.destination] != 2){
-			
+
 			minPath[e] = currCheapest;
 			e++;	// go to next edge in MST
 			unite(currCheapest.source, currCheapest.destination, parent, elements);
@@ -116,17 +116,17 @@ void kruskals(int numNodes, vector<edge>& grid, vector<edge>& minPath){
 	}
 
 	// Insertion???
-	for(int i = 0; i < numNodes; ++i){
-		if(degree[i] == 0){
-			int x = degree[i];
-			// Check each edge that is inside of minPath, add the unused points
-			edge minEdge;
-			for(int e = 0; e < (int)minPath.size(); ++e){
-				// how to determine distance?
-
-			}
-		}
-	}
+	// for(int i = 0; i < numNodes; ++i){
+	// 	if(degree[i] == 0){
+	// 		int x = degree[i];
+	// 		// Check each edge that is inside of minPath, add the unused points
+	// 		edge minEdge;
+	// 		for(int e = 0; e < (int)minPath.size(); ++e){
+	// 			// how to determine distance?
+	//
+	// 		}
+	// 	}
+	// }
 
 
 }
