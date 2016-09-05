@@ -113,13 +113,13 @@ int knapSack01(vector<int>& weights, vector<int>& values, int capacity){
         }
     }
 
-    // for(int i = 0; i < items + 1; ++i){
-    //     for(int j = 0; j < capacity + 1; ++j){
-    //         cout << memTable[i][j] << ' ';
-    //     }
-    //     cout << endl;
-    // }
-    // cout << endl;
+    for(int i = 0; i < items + 1; ++i){
+        for(int j = 0; j < capacity + 1; ++j){
+            cout << memTable[i][j] << ' ';
+        }
+        cout << endl;
+    }
+    cout << endl;
 
 
     return memTable[items][capacity];
