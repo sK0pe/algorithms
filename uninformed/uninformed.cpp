@@ -9,6 +9,17 @@
 #include<unordered_map>
 using namespace std;
 
+class item{
+    public:
+        string word;
+        int links;
+
+        item(string w, int num){
+            word = w;
+            links = num;
+        }
+};
+
 bool isAdjacent(string& a, string& b){
     int count = 0;
     for(int i = 0; i < (int)a.length(); ++i){
@@ -29,24 +40,26 @@ int shortestChainDFS(string& start, string& end, map<string, set<string>>& grid)
     for(auto& d : grid){
         visited.insert(make_pair(d.first, false));
     }
-    stack<string> wordStack;
+    stack<pair<string, int>> wordStack;
     visited[start] = true;
-    wordStack.push(start);
-    string current;
-    int totalLinks = 0;
-
+    pair<string, int> item = make_pair(start, 0);
+    wordStack.push(item);
+    pair<string, int> current;
     while(!wordStack.empty()){
         current = wordStack.top();
         wordStack.pop();
-        for(auto& w : grid[current]){
+        if(current.first == end){
+            return current.second;
+        }
+
+        for(auto& w : grid[current.first]){
             if(!visited[w]){
                 visited[w] = true;
-                totalLinks++;
-                wordStack.push(w);
+                wordStack.push(make_pair(w, current.second + 1));
             }
         }
     }
-    return totalLinks;
+    return 0;
 }
 
 
