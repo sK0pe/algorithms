@@ -124,14 +124,14 @@ void makeFSM(string& pattern, vector<int>& states){
 		if(pattern[i] == pattern[len]){
 			// fsm should point to next position to compare on next iteration
 			states[i] = ++len;
-			// move along string when pattern found correctly to next 
+			// move along string when pattern found correctly to next
 			// string / state
 			++i;
 		}
 		// if the string state doesn't match the character at len
 		else{
 			if(len != 0){
-				// len becomes the state prior to len (as pattern has stopped 
+				// len becomes the state prior to len (as pattern has stopped
 				// matching)
 				len = states[len-1];
 				// don't move along string as need to check same state agains
