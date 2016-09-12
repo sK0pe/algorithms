@@ -7,6 +7,7 @@
 #include<stack>
 #include<map>
 #include<unordered_map>
+#include<limits>
 using namespace std;
 
 class item{
@@ -33,6 +34,51 @@ bool isAdjacent(string& a, string& b){
     return (count == 1)? true:false;
 }
 
+
+//  Recursive Depth Limited Search
+int intDLS(string& start, string& end, map<string, set<string>>& grid, int limit, int chainLength){
+    if(start == end){
+        return chainLength;
+    }
+    if(limit <= 0){
+        return numeric_limits<int>::max();
+    }
+    // Recur for all adjacent vertices
+    int minLength = numeric_limits<int>::max();
+    for(auto w : grid[start]){
+        minLength = min(minLength, intDLS(w, end, grid, limit-1, chainLength+1));
+    }
+    return minLength;
+}
+
+// Boolean version of DLS
+bool boolDLS(string& start, string& end, map<string, set<string>>& grid, int limit){
+    if(start == end){
+        return true;
+    }
+    if(limit <= 0){
+        return false;
+    }
+    // Recur for all adjacent vertices
+    for(auto w : grid[start]){
+        if(boolDLS(w, end, grid, limit-1) == true){
+            return true;
+        }
+    }
+    return false;
+}
+
+int iterativeDeepeningDFS(string& start, string& end, map<string, set<string>>& grid, int maxDepth){
+    for(int i = 1; i < maxDepth; ++i){
+        if(boolDLS(start, end, grid, i) == true){
+            return i;
+        }
+    }
+    return -1;
+}
+
+
+// Straight forward iterative DFS using strings through adjacency list
 int shortestChainDFS(string& start, string& end, map<string, set<string>>& grid){
     // visited container
     unordered_map<string, bool> visited;
@@ -143,7 +189,6 @@ int main(){
     // }
 
 
-
-    cout << "Shortest number of changes required are " << shortestChainDFS(start, end, grid) << endl;
+    cout << "Shortest number of changes required are " << iterativeDeepeningDFS(start, end, grid, 10) << endl;
     return 0;
 }
